@@ -1,0 +1,66 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(just *)",
+      "Bash(cmake *)",
+      "Bash(ctest *)",
+      "Bash(clang-format *)",
+      "Bash(clang-tidy *)",
+      "Bash(gcovr *)"
+    ],
+    "deny": [
+      "Read(/build/**)",
+      "Read(/.cache/**)"
+    ]
+  },
+  "enabledPlugins": {
+    "clangd-lsp@claude-plugins-official": true
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && just doctor"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/protect.sh\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && just fmt >/dev/null 2>&1 || true"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/gate.sh\"",
+            "timeout": 600,
+            "statusMessage": "Running just check"
+          }
+        ]
+      }
+    ]
+  }
+}

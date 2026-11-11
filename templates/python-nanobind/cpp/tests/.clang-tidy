@@ -1,0 +1,8 @@
+# Catch2 macros expand to code these checks dislike; the tests themselves are fine.
+InheritParentConfig: true
+Checks: >
+  -cppcoreguidelines-avoid-do-while,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -readability-magic-numbers,
+  -readability-function-cognitive-complexity,
+  -misc-use-anonymous-namespace

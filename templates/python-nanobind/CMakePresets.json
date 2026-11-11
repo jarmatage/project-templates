@@ -1,0 +1,80 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 26, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "DEV_BUILD": "ON",
+        "CPM_SOURCE_CACHE": "${sourceDir}/.cache/cpm"
+      }
+    },
+    {
+      "name": "dev",
+      "displayName": "Debug build with native tests; warnings are errors",
+      "inherits": "base"
+    },
+    {
+      "name": "san",
+      "displayName": "Native tests under AddressSanitizer and UndefinedBehaviorSanitizer",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer"
+      }
+    },
+    {
+      "name": "coverage",
+      "displayName": "Native tests instrumented for gcovr",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS": "--coverage -O0"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "dev", "configurePreset": "dev" },
+    { "name": "san", "configurePreset": "san" },
+    { "name": "coverage", "configurePreset": "coverage" }
+  ],
+  "testPresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "output": { "outputOnFailure": true },
+      "execution": { "noTestsAction": "error" }
+    },
+    { "name": "dev", "inherits": "base", "configurePreset": "dev" },
+    { "name": "san", "inherits": "base", "configurePreset": "san" },
+    { "name": "coverage", "inherits": "base", "configurePreset": "coverage" }
+  ],
+  "workflowPresets": [
+    {
+      "name": "dev",
+      "steps": [
+        { "type": "configure", "name": "dev" },
+        { "type": "build", "name": "dev" },
+        { "type": "test", "name": "dev" }
+      ]
+    },
+    {
+      "name": "san",
+      "steps": [
+        { "type": "configure", "name": "san" },
+        { "type": "build", "name": "san" },
+        { "type": "test", "name": "san" }
+      ]
+    },
+    {
+      "name": "coverage",
+      "steps": [
+        { "type": "configure", "name": "coverage" },
+        { "type": "build", "name": "coverage" },
+        { "type": "test", "name": "coverage" }
+      ]
+    }
+  ]
+}

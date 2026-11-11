@@ -1,0 +1,32 @@
+//! Python bindings for `{{ project_name }}-core`, built by maturin as `{{ package_name }}._core`.
+//!
+//! Keep this crate thin: convert arguments and errors here, put logic in the core crate.
+
+use pyo3::prelude::*;
+
+/// Native implementation module; re-exported by the `{{ package_name }}` Python package.
+#[pymodule]
+#[allow(
+    clippy::doc_markdown,
+    reason = "doc comments in this module are Python docstrings"
+)]
+mod _core {
+    use pyo3::exceptions::PyOverflowError;
+    use pyo3::prelude::*;
+
+    /// Return the n-th Fibonacci number.
+    ///
+    /// Args:
+    ///     n: Zero-based position in the sequence, so ``fibonacci(0) == 0``.
+    ///
+    /// Returns:
+    ///     The n-th Fibonacci number.
+    ///
+    /// Raises:
+    ///     OverflowError: If ``n`` is negative or the result does not fit in 64 bits.
+    #[pyfunction]
+    fn fibonacci(n: u32) -> PyResult<u64> {
+        {{ package_name }}_core::fibonacci(n)
+            .ok_or_else(|| PyOverflowError::new_err("result does not fit in 64 bits"))
+    }
+}

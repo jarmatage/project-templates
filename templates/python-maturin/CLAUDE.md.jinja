@@ -1,0 +1,45 @@
+# {{ project_name }}
+
+{{ description }}
+
+A Python package whose implementation is a Rust extension (PyO3, built by maturin).
+
+## Layout
+
+- `crates/core/` - pure-Rust logic, no Python dependency; unit tests beside the code
+- `crates/py/` - thin PyO3 bindings, compiled to `{{ package_name }}._core`
+- `src/{{ package_name }}/` - the Python package: re-exports, `_core.pyi` stubs, `py.typed`
+- `tests/` - pytest suite that exercises the built extension
+- `docs/` - MkDocs site; the API page is generated from the built extension, so Python docstrings are the `///` comments on each `#[pyfunction]`
+
+## Commands
+
+Everything goes through `just` (run `just` to list recipes), `uv` and `cargo`.
+Never call `pip`, `maturin develop` or a bare `python`; use `uv run`.
+
+- `just check` - format check, clippy + ruff, ty, Rust and Python tests. **Work is not done until this passes.**
+- `just test-rust name_filter` / `just test-py -k name` - run one side while iterating
+- `just cov` - coverage for both sides; `just docs` - rustdoc and MkDocs, strict
+- `uv add <pkg>` / `cargo add -p {{ project_name }}-core <crate>` - change dependencies; run `just deny` after Rust changes
+
+## Verification
+
+- Logic changes need a Rust test in `crates/core`; anything visible from Python
+  also needs a pytest test. Tests must fail before the change and pass after.
+- Hooks do the routine work: every edit is formatted (rustfmt, ruff), and
+  `just check` runs when you finish. If it fails you get the output; fix the cause.
+- Clippy runs with `pedantic` and `-D warnings`, ruff with every rule. Do not
+  add `#[allow(...)]`, `# noqa` or `# type: ignore` to get green; configure
+  the rule in `Cargo.toml` / `pyproject.toml` with a reason.
+- Prefer the language servers (rust-analyzer, ty) over text search for navigation.
+
+## Gotchas
+
+- `uv run` rebuilds the extension when Rust sources change (`cache-keys` in
+  `pyproject.toml`), so Python tests always see current Rust code. A new
+  non-`.rs` build input must be added to `cache-keys`.
+- A function exposed to Python changes in three places: `crates/py/src/lib.rs`,
+  the type stub `src/{{ package_name }}/_core.pyi`, and the re-export in `__init__.py`.
+- The version lives only in `[workspace.package]` in the root `Cargo.toml`.
+- `crates/py` has no Rust tests by design (a test binary would need libpython).
+- `uv.lock`, `Cargo.lock` and `.copier-answers.yml` are generated; edits to them are blocked.

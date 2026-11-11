@@ -1,0 +1,16 @@
+import pytest
+
+from {{ package_name }} import fibonacci
+
+
+@pytest.mark.parametrize(
+    ("n", "expected"),
+    [(0, 0), (1, 1), (2, 1), (10, 55), (90, 2880067194370816120)],
+)
+def test_fibonacci(n: int, expected: int) -> None:
+    assert fibonacci(n) == expected
+
+
+def test_fibonacci_rejects_negative_input() -> None:
+    with pytest.raises(ValueError, match="non-negative"):
+        fibonacci(-1)

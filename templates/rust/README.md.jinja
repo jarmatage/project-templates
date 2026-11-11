@@ -1,0 +1,28 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Development
+
+Requires [rustup](https://rustup.rs) and [just](https://just.systems/); the
+toolchain itself is pinned in `rust-toolchain.toml`. `just doctor` lists any
+missing cargo tools with install commands.
+
+```sh
+just setup   # fetch dependencies, install git hooks
+just check   # format check, clippy, tests
+just         # list every recipe
+```
+
+| Task | Tool |
+| --- | --- |
+| Build and dependencies | cargo |
+| Format and lint | rustfmt, clippy (pedantic, warnings are errors) |
+| Tests and coverage | cargo-nextest, cargo-llvm-cov |
+| Dependency policy | cargo-deny |
+| Docs | rustdoc |
+| Git hooks | prek |
+
+The repository carries Claude Code settings (`CLAUDE.md`, `.claude/`): edits
+are auto-formatted, `just check` runs before Claude finishes a task, and the
+`rust-analyzer-lsp` plugin provides the language server.

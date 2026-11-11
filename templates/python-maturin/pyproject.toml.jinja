@@ -1,0 +1,75 @@
+[project]
+name = "{{ project_name }}"
+dynamic = ["version"] # single source: [workspace.package] in Cargo.toml
+description = "{{ description }}"
+readme = "README.md"
+license = "{{ license }}"
+license-files = ["LICENSE"]
+authors = [{ name = "{{ author_name }}", email = "{{ author_email }}" }]
+requires-python = ">={{ python_version }}"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "prek>=0.5",
+    "pytest>=9",
+    "pytest-cov>=7",
+    "ruff>=0.17",
+    "ty>=0.0.100",
+]
+docs = [
+    "mkdocs-material>=9.6",
+    "mkdocstrings[python]>=1",
+]
+
+[build-system]
+requires = ["maturin>=1.9,<2.0"]
+build-backend = "maturin"
+
+[tool.maturin]
+manifest-path = "crates/py/Cargo.toml"
+module-name = "{{ package_name }}._core"
+python-source = "src"
+
+[tool.uv]
+# `uv sync` / `uv run` rebuild the extension when any of these change.
+cache-keys = [
+    { file = "pyproject.toml" },
+    { file = "Cargo.toml" },
+    { file = "Cargo.lock" },
+    { file = "crates/**/Cargo.toml" },
+    { file = "crates/**/*.rs" },
+]
+
+[tool.ruff.lint]
+# Everything is on; switch a rule off here, with a reason, rather than inline.
+select = ["ALL"]
+ignore = [
+    "COM812", # conflicts with the formatter
+    "CPY",    # no per-file copyright headers
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "D",       # tests do not need docstrings
+    "INP001",  # tests/ is not a package
+    "PLR2004", # literal values are fine in assertions
+    "S101",    # assert is how pytest works
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+xfail_strict = true
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+source_pkgs = ["{{ package_name }}"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+exclude_also = ["if TYPE_CHECKING:", "if __name__ == .__main__.:"]

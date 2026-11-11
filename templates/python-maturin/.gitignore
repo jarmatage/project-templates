@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.venv
+
+# Tool caches and reports
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+site/
+
+# Claude Code local state
+.claude/settings.local.json
+.claude/.gate-*
+
+# Rust
+/target
+*.so
+*.pyd

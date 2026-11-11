@@ -1,0 +1,14 @@
+import pytest
+
+from {{ package_name }}.cli import main
+
+
+def test_main_prints_result(capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["10"]) == 0
+    assert capsys.readouterr().out == "55\n"
+
+
+def test_main_rejects_negative_input() -> None:
+    with pytest.raises(SystemExit) as exit_info:
+        main(["-1"])
+    assert exit_info.value.code == 2

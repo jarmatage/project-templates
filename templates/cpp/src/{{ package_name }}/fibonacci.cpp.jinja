@@ -1,0 +1,25 @@
+#include "{{ package_name }}/fibonacci.hpp"
+
+#include <cstdint>
+#include <stdexcept>
+#include <utility>
+
+namespace {{ package_name }} {
+
+namespace {
+constexpr unsigned kLargestIndex = 93;  // fibonacci(94) overflows 64 bits
+}  // namespace
+
+std::uint64_t fibonacci(unsigned n) {
+  if (n > kLargestIndex) {
+    throw std::overflow_error("result does not fit in 64 bits");
+  }
+  std::uint64_t current = 0;
+  std::uint64_t next = 1;
+  for (unsigned i = 0; i < n; ++i) {
+    current = std::exchange(next, current + next);
+  }
+  return current;
+}
+
+}  // namespace {{ package_name }}

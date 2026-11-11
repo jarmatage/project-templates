@@ -1,0 +1,35 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Layout
+
+- `src/{{ package_name }}/` - the package (fully typed; ships `py.typed`)
+- `tests/` - pytest suite
+- `docs/` - MkDocs site; the API page is generated from docstrings
+
+## Commands
+
+Everything goes through `just` (run `just` to list recipes) and `uv`. Never
+call `pip` or a bare `python`; use `uv run`.
+
+- `just check` - format check, lint, type check, tests. **Work is not done until this passes.**
+- `just test -k name` - run a subset while iterating
+- `just cov` - tests with coverage; `just docs` - strict docs build
+- `uv add <pkg>` / `uv add --dev <pkg>` - change dependencies
+
+## Verification
+
+- A behaviour change needs a test in `tests/` that fails before the change and passes after.
+- Hooks do the routine work: every edit is auto-formatted, and `just check`
+  runs when you finish. If it fails you get the output; fix the cause.
+- ruff runs with every rule enabled. Do not add `# noqa` or `# type: ignore`
+  to get green; if a rule is wrong for this project, disable it in
+  `pyproject.toml` with a reason.
+- Prefer the ty language server (go to definition, find references,
+  diagnostics) over text search for navigating Python.
+
+## Gotchas
+
+- `uv.lock` and `.copier-answers.yml` are generated; edits to them are blocked.
+- Warnings raised during tests are errors (`filterwarnings = ["error"]`).

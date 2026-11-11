@@ -1,0 +1,54 @@
+# Developer commands. `just check` is the gate: work is done when it passes.
+
+default:
+    @just --list
+
+# Fetch dependencies and install the git hooks
+setup:
+    cargo fetch
+    -git rev-parse --git-dir > /dev/null 2>&1 && prek install
+
+# Report missing tools
+doctor:
+    @command -v cargo > /dev/null || echo "MISSING cargo: https://rustup.rs"
+    @command -v cargo-nextest > /dev/null || echo "MISSING cargo-nextest: cargo install --locked cargo-nextest"
+    @command -v cargo-llvm-cov > /dev/null || echo "MISSING cargo-llvm-cov: cargo install --locked cargo-llvm-cov"
+    @command -v cargo-deny > /dev/null || echo "MISSING cargo-deny: cargo install --locked cargo-deny"
+    @command -v rust-analyzer > /dev/null || echo "MISSING rust-analyzer (language server): rustup component add rust-analyzer"
+    @command -v prek > /dev/null || echo "MISSING prek (git hooks): uv tool install prek, or cargo install --locked prek"
+
+# Format
+fmt:
+    cargo fmt --all
+
+# Fail if anything is unformatted
+fmt-check:
+    cargo fmt --all --check
+
+# Lint with clippy; warnings are errors
+lint:
+    cargo clippy --all-targets --all-features -- -D warnings
+
+# Run tests; extra arguments go to nextest (just test name_filter)
+test *args:
+    cargo nextest run --all-features {{ args }}
+    cargo test --doc --all-features
+
+# Run tests with a coverage report
+cov:
+    cargo llvm-cov nextest --all-features
+
+# Check dependencies: advisories, licenses, duplicates, sources
+deny:
+    cargo deny check
+
+# Build the API documentation into target/doc; warnings are errors
+docs:
+    RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features
+
+# Build in release mode
+build:
+    cargo build --release
+
+# The gate: everything that must pass before work is done
+check: fmt-check lint test

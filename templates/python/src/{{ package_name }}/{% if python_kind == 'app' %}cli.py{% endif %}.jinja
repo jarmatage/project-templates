@@ -1,0 +1,18 @@
+"""Command line interface."""
+
+import argparse
+from collections.abc import Sequence
+
+from {{ package_name }}.core import fibonacci
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """Print the n-th Fibonacci number and return the process exit code."""
+    parser = argparse.ArgumentParser(prog="{{ project_name }}", description=__doc__)
+    parser.add_argument("n", type=int, help="zero-based position in the sequence")
+    args = parser.parse_args(argv)
+    try:
+        print(fibonacci(args.n))
+    except ValueError as error:
+        parser.error(str(error))
+    return 0

@@ -1,0 +1,42 @@
+# {{ project_name }}
+
+{{ description }}
+
+A C++{{ cpp_standard }} library in the [pitchfork layout](https://github.com/vector-of-bool/pitchfork), built with CMake.
+
+## Layout
+
+- `include/{{ package_name }}/` - public headers (the API); `src/{{ package_name }}/` - implementation
+- `tests/*.test.cpp` - Catch2 tests (picked up automatically)
+- `examples/` - small programs that use the library the way a consumer would
+- `docs/` - Doxygen configuration; `cmake/` - vendored CPM.cmake
+- `build/<preset>/` - build trees, one per preset in `CMakePresets.json` (`dev`, `san`, `coverage`, `release`)
+
+## Commands
+
+Everything goes through `just` (run `just` to list recipes), which wraps the
+CMake presets. Do not invoke the compiler or `make` directly.
+
+- `just check` - format check, clang-tidy, build and tests with warnings as errors. **Work is not done until this passes.**
+- `just test-san` - tests under ASan + UBSan; run it after touching memory, lifetimes or arithmetic
+- `just cov` - coverage report; `just docs` - Doxygen with warnings as errors
+- Dependencies: `CPMAddPackage(...)` with a pinned version, in the CMake file that needs it
+
+## Verification
+
+- A behaviour change needs a Catch2 test in `tests/` that fails before the
+  change and passes after.
+- Hooks do the routine work: every edit is formatted with clang-format, and
+  `just check` runs when you finish. If it fails you get the output; fix the cause.
+- Compiler warnings and clang-tidy findings are errors. Do not add `NOLINT` or
+  warning pragmas to get green; configure the check in `.clang-tidy` with a reason.
+- Prefer clangd (go to definition, find references, diagnostics) over text
+  search for navigating C++.
+
+## Gotchas
+
+- A new `.cpp` under `src/` or `examples/` must be added to its target in the
+  matching `CMakeLists.txt` (tests are globbed).
+- clangd and clang-tidy read `build/dev/compile_commands.json`; `just setup` creates it.
+- Dependencies are downloaded once into `.cache/cpm` and shared by all presets.
+- `cmake/CPM.cmake`, `build/` and `.copier-answers.yml` are not edited by hand; edits to them are blocked.

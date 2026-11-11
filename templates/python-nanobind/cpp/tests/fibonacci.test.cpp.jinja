@@ -1,0 +1,20 @@
+#include "{{ package_name }}/fibonacci.hpp"
+
+#include <catch2/catch_test_macros.hpp>
+#include <cstdint>
+#include <stdexcept>
+
+using {{ package_name }}::fibonacci;
+
+TEST_CASE("fibonacci starts with 0 and 1") {
+  CHECK(fibonacci(0) == 0);
+  CHECK(fibonacci(1) == 1);
+  CHECK(fibonacci(2) == 1);
+  CHECK(fibonacci(10) == 55);
+}
+
+TEST_CASE("fibonacci returns the largest value that fits in 64 bits") {
+  CHECK(fibonacci(93) == std::uint64_t{12200160415121876738U});
+}
+
+TEST_CASE("fibonacci reports overflow") { CHECK_THROWS_AS(fibonacci(94), std::overflow_error); }

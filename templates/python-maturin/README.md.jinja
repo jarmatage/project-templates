@@ -1,0 +1,32 @@
+# {{ project_name }}
+
+{{ description }}
+
+A Python package implemented in Rust with [PyO3](https://pyo3.rs), built by
+[maturin](https://www.maturin.rs).
+
+## Development
+
+Requires [uv](https://docs.astral.sh/uv/), [rustup](https://rustup.rs) and
+[just](https://just.systems/). `just doctor` lists any missing cargo tools
+with install commands.
+
+```sh
+just setup   # create the environment (builds the extension), install git hooks
+just check   # format check, lint, type check, Rust and Python tests
+just         # list every recipe
+```
+
+| Task | Python | Rust |
+| --- | --- | --- |
+| Build and dependencies | uv, maturin | cargo |
+| Format and lint | ruff | rustfmt, clippy |
+| Type check | ty | - |
+| Tests and coverage | pytest, pytest-cov | cargo-nextest, cargo-llvm-cov |
+| Dependency policy | - | cargo-deny |
+| Docs | MkDocs Material, mkdocstrings | rustdoc |
+
+Git hooks run through prek. The repository carries Claude Code settings
+(`CLAUDE.md`, `.claude/`): edits are auto-formatted, `just check` runs before
+Claude finishes a task, and the Astral and `rust-analyzer-lsp` plugins provide
+the ty and rust-analyzer language servers.

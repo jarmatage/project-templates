@@ -1,0 +1,73 @@
+[project]
+name = "{{ project_name }}"
+version = "0.1.0"
+description = "{{ description }}"
+readme = "README.md"
+license = "{{ license }}"
+license-files = ["LICENSE"]
+authors = [{ name = "{{ author_name }}", email = "{{ author_email }}" }]
+requires-python = ">={{ python_version }}"
+dependencies = []
+{%- if python_kind == 'app' %}
+
+[project.scripts]
+{{ project_name }} = "{{ package_name }}.cli:main"
+{%- endif %}
+
+[dependency-groups]
+dev = [
+    "prek>=0.5",
+    "pytest>=9",
+    "pytest-cov>=7",
+    "ruff>=0.17",
+    "ty>=0.0.100",
+]
+docs = [
+    "mkdocs-material>=9.6",
+    "mkdocstrings[python]>=1",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.7,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "{{ package_name }}"
+
+[tool.ruff.lint]
+# Everything is on; switch a rule off here, with a reason, rather than inline.
+select = ["ALL"]
+ignore = [
+    "COM812", # conflicts with the formatter
+    "CPY",    # no per-file copyright headers
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "D",       # tests do not need docstrings
+    "INP001",  # tests/ is not a package
+    "PLR2004", # literal values are fine in assertions
+    "S101",    # assert is how pytest works
+]
+{%- if python_kind == 'app' %}
+"src/*/cli.py" = [
+    "T201", # the command line interface prints
+]
+{%- endif %}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+xfail_strict = true
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+source_pkgs = ["{{ package_name }}"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+exclude_also = ["if TYPE_CHECKING:", "if __name__ == .__main__.:"]

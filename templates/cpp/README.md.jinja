@@ -1,0 +1,40 @@
+# {{ project_name }}
+
+{{ description }}
+
+```cpp
+#include "{{ package_name }}/fibonacci.hpp"
+
+auto value = {{ package_name }}::fibonacci(10);  // 55
+```
+
+## Development
+
+Requires a C++{{ cpp_standard }} compiler (GCC or Clang), CMake 3.25+, Ninja,
+clang-format, clang-tidy and [just](https://just.systems/); gcovr, Doxygen,
+clangd, prek and ccache are used when present. `just doctor` reports what is
+missing and how to install it.
+
+```sh
+just setup   # configure the dev build, install git hooks
+just check   # format check, clang-tidy, build and tests
+just         # list every recipe
+```
+
+| Task | Tool |
+| --- | --- |
+| Build | CMake presets, Ninja, ccache |
+| Dependencies | CPM.cmake |
+| Format and lint | clang-format, clang-tidy (warnings are errors) |
+| Tests | Catch2 v3 through CTest, ASan + UBSan preset |
+| Coverage | gcovr |
+| Docs | Doxygen |
+| Git hooks | prek |
+
+The layout follows [pitchfork](https://github.com/vector-of-bool/pitchfork):
+public headers in `include/`, sources in `src/`, plus `tests/`, `examples/`
+and `docs/`.
+
+The repository carries Claude Code settings (`CLAUDE.md`, `.claude/`): edits
+are auto-formatted, `just check` runs before Claude finishes a task, and the
+`clangd-lsp` plugin provides the language server.

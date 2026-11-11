@@ -1,0 +1,12 @@
+// Prints the first Fibonacci numbers; shows how a consumer uses the library.
+#include <iostream>
+
+#include "{{ package_name }}/fibonacci.hpp"
+
+int main() {
+  constexpr unsigned kCount = 10;
+  for (unsigned n = 0; n < kCount; ++n) {
+    std::cout << {{ package_name }}::fibonacci(n) << '\n';
+  }
+  return 0;
+}

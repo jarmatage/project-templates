@@ -1,0 +1,3 @@
+# clangd reads compile commands from the dev build; `just setup` creates it.
+CompileFlags:
+  CompilationDatabase: build/dev

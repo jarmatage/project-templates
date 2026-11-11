@@ -1,0 +1,6 @@
+# Rust
+/target
+
+# Claude Code local state
+.claude/settings.local.json
+.claude/.gate-*

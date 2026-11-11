@@ -1,0 +1,19 @@
+# Warnings are errors. Disable a check here, with a reason, rather than with NOLINT.
+Checks: >
+  -*,
+  bugprone-*,
+  clang-analyzer-*,
+  cppcoreguidelines-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -modernize-use-trailing-return-type,
+  -portability-avoid-pragma-once,
+  -readability-identifier-length
+# modernize-use-trailing-return-type: stylistic, not used in this project
+# portability-avoid-pragma-once: `#pragma once` is this project's include guard
+# readability-identifier-length: short names such as `n` are fine
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*/cpp/(include|src|bindings|tests)/.*'

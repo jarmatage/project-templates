@@ -1,0 +1,72 @@
+# Developer commands. `just check` is the gate: work is done when it passes.
+
+default:
+    @just --list
+
+# Create the environment (builds the extension) and install the git hooks
+setup:
+    uv sync
+    -git rev-parse --git-dir > /dev/null 2>&1 && uv run prek install
+
+# Report missing tools
+doctor:
+    @command -v uv > /dev/null || echo "MISSING uv: https://docs.astral.sh/uv/getting-started/installation/"
+    @command -v cargo > /dev/null || echo "MISSING cargo: https://rustup.rs"
+    @command -v cargo-nextest > /dev/null || echo "MISSING cargo-nextest: cargo install --locked cargo-nextest"
+    @command -v cargo-llvm-cov > /dev/null || echo "MISSING cargo-llvm-cov: cargo install --locked cargo-llvm-cov"
+    @command -v cargo-deny > /dev/null || echo "MISSING cargo-deny: cargo install --locked cargo-deny"
+    @command -v rust-analyzer > /dev/null || echo "MISSING rust-analyzer (language server): rustup component add rust-analyzer"
+    @test -d .venv || echo "No .venv yet: run 'just setup'"
+
+# Format Rust and Python; apply safe Python lint fixes
+fmt:
+    cargo fmt --all
+    uv run --no-sync ruff check --fix-only --unfixable F401 --quiet
+    uv run --no-sync ruff format --quiet
+
+# Fail if anything is unformatted
+fmt-check:
+    cargo fmt --all --check
+    uv run ruff format --check
+
+# Lint with clippy (warnings are errors) and ruff
+lint:
+    cargo clippy --workspace --all-targets --all-features -- -D warnings
+    uv run ruff check
+
+# Type-check Python with ty
+typecheck:
+    uv run ty check
+
+# Run the Rust tests; extra arguments go to nextest
+test-rust *args:
+    cargo nextest run --workspace {{ args }}
+    cargo test --doc --workspace
+
+# Run the Python tests against a freshly built extension; extra arguments go to pytest
+test-py *args:
+    uv run pytest {{ args }}
+
+# Run all tests
+test: test-rust test-py
+
+# Coverage: Rust core via llvm-cov, Python package via pytest-cov
+cov:
+    cargo llvm-cov nextest --workspace
+    uv run pytest --cov --cov-report=term-missing
+
+# Check Rust dependencies: advisories, licenses, duplicates, sources
+deny:
+    cargo deny check
+
+# Build rustdoc into target/doc and the MkDocs site into site/
+docs:
+    RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
+    uv run --group docs mkdocs build --strict
+
+# Build the sdist and wheel into dist/
+build:
+    uv build
+
+# The gate: everything that must pass before work is done
+check: fmt-check lint typecheck test

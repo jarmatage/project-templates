@@ -1,0 +1,33 @@
+# {{ project_name }}
+
+{{ description }}
+
+A Python package implemented in C++{{ cpp_standard }} with
+[nanobind](https://nanobind.readthedocs.io), built by
+[scikit-build-core](https://scikit-build-core.readthedocs.io).
+
+## Development
+
+Requires [uv](https://docs.astral.sh/uv/), [just](https://just.systems/) and a
+C++{{ cpp_standard }} compiler. CMake, Ninja, clang-format, clang-tidy and gcovr are
+installed into the project environment by `uv sync`; clangd (for editors and
+Claude) and ccache are optional system packages. `just doctor` reports what is missing.
+
+```sh
+just setup   # create the environment (builds the extension), configure the dev build, install git hooks
+just check   # format check, lint, type check, C++ and Python tests
+just         # list every recipe
+```
+
+| Task | Python | C++ |
+| --- | --- | --- |
+| Build and dependencies | uv, scikit-build-core | CMake presets, Ninja, CPM.cmake |
+| Format and lint | ruff | clang-format, clang-tidy |
+| Type check | ty | - |
+| Tests and coverage | pytest, pytest-cov | Catch2, gcovr, ASan + UBSan |
+| Docs | MkDocs Material, mkdocstrings | - |
+
+Git hooks run through prek. The repository carries Claude Code settings
+(`CLAUDE.md`, `.claude/`): edits are auto-formatted, `just check` runs before
+Claude finishes a task, and the Astral and `clangd-lsp` plugins provide the ty
+and clangd language servers.

@@ -1,0 +1,26 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Development
+
+Requires [uv](https://docs.astral.sh/uv/) and [just](https://just.systems/).
+
+```sh
+just setup   # create the environment, install git hooks
+just check   # format check, lint, type check, tests
+just         # list every recipe
+```
+
+| Task | Tool |
+| --- | --- |
+| Packaging and environments | uv |
+| Format and lint | ruff |
+| Type check | ty |
+| Tests and coverage | pytest, pytest-cov |
+| Docs | MkDocs Material, mkdocstrings |
+| Git hooks | prek |
+
+The repository carries Claude Code settings (`CLAUDE.md`, `.claude/`): edits
+are auto-formatted, `just check` runs before Claude finishes a task, and the
+Astral plugin provides the ty language server.

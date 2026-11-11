@@ -1,0 +1,12 @@
+{
+  "name": "project-templates",
+  "description": "Copier project templates with full toolchains and Claude Code settings",
+  "owner": { "name": "jarmatag" },
+  "plugins": [
+    {
+      "name": "project-templates",
+      "source": "./",
+      "description": "Scaffold Python, Python+Rust, Python+C++, Rust and C++ projects with copier"
+    }
+  ]
+}

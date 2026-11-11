@@ -1,0 +1,48 @@
+//! {{ description }}
+
+/// Returns the `n`-th Fibonacci number, or `None` if it does not fit in a `u64`.
+///
+/// The sequence is zero-based, so `fibonacci(0)` is `Some(0)`.
+///
+/// # Examples
+///
+/// ```
+/// use {{ package_name }}::fibonacci;
+///
+/// assert_eq!(fibonacci(10), Some(55));
+/// assert_eq!(fibonacci(94), None);
+/// ```
+#[must_use]
+pub fn fibonacci(n: u32) -> Option<u64> {
+    // `next` is `None` once the following term overflows; that only matters
+    // if the loop needs it.
+    let (mut current, mut next) = (0_u64, Some(1_u64));
+    for _ in 0..n {
+        let value = next?;
+        next = current.checked_add(value);
+        current = value;
+    }
+    Some(current)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn starts_with_zero_and_one() {
+        assert_eq!(fibonacci(0), Some(0));
+        assert_eq!(fibonacci(1), Some(1));
+        assert_eq!(fibonacci(2), Some(1));
+    }
+
+    #[test]
+    fn largest_value_that_fits() {
+        assert_eq!(fibonacci(93), Some(12_200_160_415_121_876_738));
+    }
+
+    #[test]
+    fn overflow_is_none() {
+        assert_eq!(fibonacci(94), None);
+    }
+}

@@ -1,0 +1,82 @@
+# Developer commands. `just check` is the gate: work is done when it passes.
+
+package := `ls src`
+cpp_sources := `find cpp -name '*.cpp' | sort | tr '\n' ' '`
+cpp_files := cpp_sources + `find cpp -name '*.hpp' | sort | tr '\n' ' '`
+
+default:
+    @just --list
+
+# Create the environment (builds the extension), configure the dev build, install the git hooks
+setup:
+    uv sync
+    uv run cmake --preset dev
+    -git rev-parse --git-dir > /dev/null 2>&1 && uv run prek install
+
+# Report missing tools
+doctor:
+    @command -v uv > /dev/null || echo "MISSING uv: https://docs.astral.sh/uv/getting-started/installation/"
+    @command -v c++ > /dev/null || command -v g++ > /dev/null || command -v clang++ > /dev/null || echo "MISSING a C++ compiler (g++ or clang++)"
+    @command -v clangd > /dev/null || echo "MISSING clangd (language server): install your distribution's clangd package"
+    @command -v ccache > /dev/null || echo "OPTIONAL ccache not found: rebuilds will be slower"
+    @test -d .venv || echo "No .venv yet: run 'just setup'"
+    @test -f build/dev/compile_commands.json || echo "No dev build yet (clangd and clang-tidy need it): run 'just setup'"
+
+# Format C++ and Python; apply safe Python lint fixes
+fmt:
+    uv run --no-sync clang-format -i {{ cpp_files }}
+    uv run --no-sync ruff check --fix-only --unfixable F401 --quiet
+    uv run --no-sync ruff format --quiet
+
+# Fail if anything is unformatted
+fmt-check:
+    uv run clang-format --dry-run --Werror {{ cpp_files }}
+    uv run ruff format --check
+
+# Lint with clang-tidy (warnings are errors) and ruff
+lint:
+    uv run cmake --preset dev > /dev/null
+    uv run clang-tidy -p build/dev --quiet {{ cpp_sources }}
+    uv run ruff check
+
+# Regenerate the type stub (signatures and docstrings) from the built extension
+stubs:
+    uv run python -m nanobind.stubgen -q -m {{ package }}._core -o src/{{ package }}/_core.pyi
+
+# Type-check Python with ty, after checking that the committed stub matches the extension
+typecheck:
+    uv run python -m nanobind.stubgen -q -m {{ package }}._core -o build/_core.pyi
+    diff -u src/{{ package }}/_core.pyi build/_core.pyi || (echo "Stub is stale: run 'just stubs'" && exit 1)
+    uv run ty check
+
+# Build and run the native C++ tests
+test-cpp:
+    uv run cmake --workflow --preset dev
+
+# Run the Python tests against a freshly built extension; extra arguments go to pytest
+test-py *args:
+    uv run pytest {{ args }}
+
+# Run all tests
+test: test-cpp test-py
+
+# Run the native tests under AddressSanitizer and UndefinedBehaviorSanitizer
+test-san:
+    uv run cmake --workflow --preset san
+
+# Coverage: C++ core via gcovr, Python package via pytest-cov
+cov:
+    uv run cmake --workflow --preset coverage
+    uv run gcovr --root . --filter cpp/include --filter cpp/src build/coverage
+    uv run pytest --cov --cov-report=term-missing
+
+# Build the MkDocs site into site/
+docs:
+    uv run --group docs mkdocs build --strict
+
+# Build the sdist and wheel into dist/
+build:
+    uv build
+
+# The gate: everything that must pass before work is done
+check: fmt-check lint typecheck test

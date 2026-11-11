@@ -1,0 +1,53 @@
+cmake_minimum_required(VERSION 3.26...4.2)
+project({{ package_name }} LANGUAGES CXX)
+
+# Two ways in: scikit-build-core builds the wheel (`uv sync`, `uv build`), and
+# the CMake presets build the same targets plus the native tests for development.
+option(DEV_BUILD "Developer build: warnings are errors and native tests are built" OFF)
+
+set(CMAKE_CXX_STANDARD {{ cpp_standard }})
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# No C++ modules here; scanning for them slows builds and adds flags clang-tidy rejects.
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+  set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+endif()
+
+# Warnings for this project's own targets (not for dependencies).
+add_library(project_warnings INTERFACE)
+if(MSVC)
+  target_compile_options(project_warnings INTERFACE /W4 $<$<BOOL:${DEV_BUILD}>:/WX>)
+else()
+  target_compile_options(project_warnings INTERFACE -Wall -Wextra -Wpedantic -Wconversion -Wshadow
+                                                    $<$<BOOL:${DEV_BUILD}>:-Werror>)
+endif()
+
+# Pure C++ core: all logic lives here and is tested natively.
+add_library(core STATIC cpp/src/fibonacci.cpp)
+target_include_directories(core PUBLIC cpp/include)
+target_link_libraries(core PRIVATE project_warnings)
+
+# Python extension module, installed into the package as {{ package_name }}._core.
+find_package(Python {{ python_version }} REQUIRED COMPONENTS Interpreter Development.Module)
+execute_process(
+  COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  OUTPUT_VARIABLE nanobind_ROOT
+  COMMAND_ERROR_IS_FATAL ANY)
+find_package(nanobind CONFIG REQUIRED)
+
+nanobind_add_module(_core NB_STATIC cpp/bindings/module.cpp)
+# Treat nanobind's headers as system headers so our warning flags do not apply to them.
+set_target_properties(nanobind-static PROPERTIES SYSTEM ON)
+target_link_libraries(_core PRIVATE core project_warnings)
+install(TARGETS _core LIBRARY DESTINATION {{ package_name }})
+
+if(DEV_BUILD)
+  enable_testing()
+  add_subdirectory(cpp/tests)
+endif()

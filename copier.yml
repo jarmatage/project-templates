@@ -1,0 +1,84 @@
+# One copier entry point for all five templates: the `template` answer selects
+# which directory under templates/ is rendered. Each directory is a complete,
+# independent project tree.
+_min_copier_version: "9.4.0"
+_subdirectory: "templates/{{ template }}"
+
+template:
+  type: str
+  help: Which kind of project?
+  choices:
+    Python (uv): python
+    Python + Rust extension (maturin, PyO3): python-maturin
+    Python + C++ extension (scikit-build-core, nanobind): python-nanobind
+    Rust (cargo): rust
+    C++ (CMake, pitchfork layout): cpp
+
+project_name:
+  type: str
+  help: Project name (lowercase, hyphen-separated; used as the distribution / crate / CMake project name)
+  validator: >-
+    {% if not (project_name | regex_search('^[a-z][a-z0-9]*(-[a-z0-9]+)*$')) %}
+    Use lowercase letters, digits and single hyphens, starting with a letter.
+    {% endif %}
+
+package_name:
+  type: str
+  help: Import name (Python module / Rust crate identifier / C++ namespace)
+  default: "{{ project_name | replace('-', '_') }}"
+  validator: >-
+    {% if not (package_name | regex_search('^[a-z][a-z0-9_]*$')) %}
+    Use a lowercase identifier (letters, digits, underscores).
+    {% endif %}
+
+description:
+  type: str
+  help: One-line description
+  default: "A {{ template }} project."
+
+author_name:
+  type: str
+  help: Author name
+  default: Your Name
+
+author_email:
+  type: str
+  help: Author email
+  default: you@example.com
+
+license:
+  type: str
+  help: License
+  choices:
+    - MIT
+    - Apache-2.0
+  default: MIT
+
+python_kind:
+  type: str
+  help: Library or application? (application adds a console-script entry point)
+  choices:
+    Library (like `uv init --lib`): lib
+    Application (like `uv init --package`): app
+  default: lib
+  when: "{{ template == 'python' }}"
+
+python_version:
+  type: str
+  help: Minimum supported Python version
+  choices: ["3.11", "3.12", "3.13", "3.14"]
+  default: "3.12"
+  when: "{{ template.startswith('python') }}"
+
+rust_channel:
+  type: str
+  help: Rust toolchain to pin in rust-toolchain.toml (`stable`, or an exact version such as 1.99.1 for reproducibility)
+  default: stable
+  when: "{{ template in ['rust', 'python-maturin'] }}"
+
+cpp_standard:
+  type: str
+  help: C++ standard
+  choices: ["20", "23"]
+  default: "23"
+  when: "{{ template in ['cpp', 'python-nanobind'] }}"

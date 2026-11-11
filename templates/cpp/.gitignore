@@ -1,0 +1,7 @@
+# Build trees and the CPM download cache
+build/
+.cache/
+
+# Claude Code local state
+.claude/settings.local.json
+.claude/.gate-*

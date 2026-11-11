@@ -1,0 +1,2 @@
+add_executable(print_fibonacci print_fibonacci.cpp)
+target_link_libraries(print_fibonacci PRIVATE {{ package_name }}::{{ package_name }} {{ package_name }}_warnings)

@@ -1,0 +1,12 @@
+#pragma once
+
+#include <cstdint>
+
+namespace {{ package_name }} {
+
+/// Returns the n-th Fibonacci number (zero-based, so `fibonacci(0) == 0`).
+///
+/// @throws std::overflow_error if the result does not fit in 64 bits (n > 93).
+[[nodiscard]] std::uint64_t fibonacci(unsigned n);
+
+}  // namespace {{ package_name }}

@@ -1,0 +1,24 @@
+[package]
+name = "{{ project_name }}-py"
+description = "Python bindings for {{ project_name }}-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish = false
+
+[lib]
+# The module is imported as `{{ package_name }}._core`; this name must match
+# `module-name` in pyproject.toml and the `#[pymodule]` in src/lib.rs.
+name = "_core"
+crate-type = ["cdylib"]
+# Bindings are tested from Python (tests/); a Rust test binary would need libpython.
+test = false
+doctest = false
+
+[dependencies]
+{{ project_name }}-core.workspace = true
+pyo3.workspace = true
+
+[lints]
+workspace = true

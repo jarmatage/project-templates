@@ -1,0 +1,50 @@
+# Developer commands. `just check` is the gate: work is done when it passes.
+
+default:
+    @just --list
+
+# Create the environment and install the git hooks
+setup:
+    uv sync
+    -git rev-parse --git-dir > /dev/null 2>&1 && uv run prek install
+
+# Report missing tools
+doctor:
+    @command -v uv > /dev/null || echo "MISSING uv: https://docs.astral.sh/uv/getting-started/installation/"
+    @test -d .venv || echo "No .venv yet: run 'just setup'"
+
+# Format and apply safe lint fixes (unused imports are left for you to resolve)
+fmt:
+    uv run --no-sync ruff check --fix-only --unfixable F401 --quiet
+    uv run --no-sync ruff format --quiet
+
+# Fail if anything is unformatted
+fmt-check:
+    uv run ruff format --check
+
+# Lint with ruff
+lint:
+    uv run ruff check
+
+# Type-check with ty
+typecheck:
+    uv run ty check
+
+# Run tests; extra arguments go to pytest (just test -k name)
+test *args:
+    uv run pytest {{ args }}
+
+# Run tests with a coverage report
+cov:
+    uv run pytest --cov --cov-report=term-missing
+
+# Build the documentation site into site/
+docs:
+    uv run --group docs mkdocs build --strict
+
+# Build the sdist and wheel into dist/
+build:
+    uv build
+
+# The gate: everything that must pass before work is done
+check: fmt-check lint typecheck test

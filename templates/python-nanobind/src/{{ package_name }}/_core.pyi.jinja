@@ -1,0 +1,20 @@
+"""
+Native implementation module; re-exported by the `{{ package_name }}` Python package.
+"""
+
+
+
+def fibonacci(n: int) -> int:
+    """
+    Return the n-th Fibonacci number.
+
+    Args:
+        n: Zero-based position in the sequence, so ``fibonacci(0) == 0``.
+
+    Returns:
+        The n-th Fibonacci number.
+
+    Raises:
+        TypeError: If ``n`` is negative.
+        OverflowError: If the result does not fit in 64 bits.
+    """

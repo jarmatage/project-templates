@@ -1,0 +1,11 @@
+//! Integration tests: exercise the crate only through its public API.
+
+use {{ package_name }}::fibonacci;
+
+#[test]
+fn each_term_is_the_sum_of_the_previous_two() {
+    for n in 2..=93 {
+        let expected = fibonacci(n - 1).unwrap() + fibonacci(n - 2).unwrap();
+        assert_eq!(fibonacci(n), Some(expected));
+    }
+}

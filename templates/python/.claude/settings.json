@@ -1,0 +1,65 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(just *)",
+      "Bash(uv run *)",
+      "Bash(uv sync *)",
+      "Bash(uv lock *)",
+      "Bash(uv build *)",
+      "Bash(uv tree *)"
+    ],
+    "deny": [
+      "Read(/dist/**)",
+      "Read(/site/**)",
+      "Read(/htmlcov/**)",
+      "Read(/.ruff_cache/**)",
+      "Read(/.pytest_cache/**)"
+    ]
+  },
+  "extraKnownMarketplaces": {
+    "astral-sh": {
+      "source": { "source": "github", "repo": "astral-sh/agent-plugins" }
+    }
+  },
+  "enabledPlugins": {
+    "astral@astral-sh": true
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          { "type": "command", "command": "cd \"$CLAUDE_PROJECT_DIR\" && just doctor" }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/protect.sh\"" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "cd \"$CLAUDE_PROJECT_DIR\" && just fmt >/dev/null 2>&1 || true" }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/gate.sh\"",
+            "timeout": 600,
+            "statusMessage": "Running just check"
+          }
+        ]
+      }
+    ]
+  }
+}

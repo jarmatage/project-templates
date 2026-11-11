@@ -1,0 +1,22 @@
+[package]
+name = "{{ project_name }}"
+version = "0.1.0"
+edition = "2024"
+description = "{{ description }}"
+license = "{{ license }}"
+authors = ["{{ author_name }} <{{ author_email }}>"]
+readme = "README.md"
+{%- if package_name != project_name | replace('-', '_') %}
+
+[lib]
+name = "{{ package_name }}"
+{%- endif %}
+
+[dependencies]
+
+[lints.rust]
+missing_docs = "warn"
+unsafe_code = "forbid"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }

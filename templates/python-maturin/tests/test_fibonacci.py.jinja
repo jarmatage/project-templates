@@ -1,0 +1,17 @@
+import pytest
+
+from {{ package_name }} import fibonacci
+
+
+@pytest.mark.parametrize(
+    ("n", "expected"),
+    [(0, 0), (1, 1), (2, 1), (10, 55), (93, 12200160415121876738)],
+)
+def test_fibonacci(n: int, expected: int) -> None:
+    assert fibonacci(n) == expected
+
+
+@pytest.mark.parametrize("n", [-1, 94])
+def test_fibonacci_rejects_out_of_range_input(n: int) -> None:
+    with pytest.raises(OverflowError):
+        fibonacci(n)

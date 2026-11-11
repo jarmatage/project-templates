@@ -1,0 +1,16 @@
+site_name: {{ project_name }}
+site_description: {{ description }}
+theme:
+  name: material
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            # Read the generated _core.pyi stub instead of importing the extension.
+            allow_inspection: false
+nav:
+  - Home: index.md
+  - API reference: api.md

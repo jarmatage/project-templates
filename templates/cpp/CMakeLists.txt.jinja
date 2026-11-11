@@ -1,0 +1,48 @@
+cmake_minimum_required(VERSION 3.25...4.2)
+project(
+  {{ package_name }}
+  VERSION 0.1.0
+  DESCRIPTION "{{ description }}"
+  LANGUAGES CXX)
+
+# Tests and examples are built only when this is the top-level project, so
+# consumers that add_subdirectory() or CPMAddPackage() it get just the library.
+option({{ package_name | upper }}_BUILD_TESTS "Build the tests" ${PROJECT_IS_TOP_LEVEL})
+option({{ package_name | upper }}_BUILD_EXAMPLES "Build the examples" ${PROJECT_IS_TOP_LEVEL})
+option({{ package_name | upper }}_WARNINGS_AS_ERRORS "Treat warnings in this project's targets as errors" OFF)
+
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# No C++ modules here; scanning for them slows builds and adds flags clang-tidy rejects.
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+  set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+endif()
+
+# Warnings for this project's own targets (not for dependencies).
+add_library({{ package_name }}_warnings INTERFACE)
+if(MSVC)
+  target_compile_options({{ package_name }}_warnings INTERFACE /W4
+                                                     $<$<BOOL:${ {{- package_name | upper }}_WARNINGS_AS_ERRORS}>:/WX>)
+else()
+  target_compile_options({{ package_name }}_warnings INTERFACE -Wall -Wextra -Wpedantic -Wconversion
+                                                     -Wshadow
+                                                     $<$<BOOL:${ {{- package_name | upper }}_WARNINGS_AS_ERRORS}>:-Werror>)
+endif()
+
+add_library({{ package_name }} src/{{ package_name }}/fibonacci.cpp)
+add_library({{ package_name }}::{{ package_name }} ALIAS {{ package_name }})
+target_compile_features({{ package_name }} PUBLIC cxx_std_{{ cpp_standard }})
+target_include_directories({{ package_name }} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
+target_link_libraries({{ package_name }} PRIVATE $<BUILD_INTERFACE:{{ package_name }}_warnings>)
+
+if({{ package_name | upper }}_BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(tests)
+endif()
+
+if({{ package_name | upper }}_BUILD_EXAMPLES)
+  add_subdirectory(examples)
+endif()
