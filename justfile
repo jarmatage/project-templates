@@ -9,6 +9,11 @@ default:
 test *args:
     uv run pytest "$@"
 
+# Only render every template (seconds); extra arguments go to pytest
+[positional-arguments]
+test-fast *args:
+    uv run pytest -m "not slow" "$@"
+
 # Validate the plugin and marketplace manifests
 validate:
     claude plugin validate .

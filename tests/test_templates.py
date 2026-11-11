@@ -1,7 +1,9 @@
 """Generate each template and run the generated project's own gate.
 
 A template is only correct if a fresh project passes `just check`, so that is
-what these tests assert. A case is skipped when a tool it needs is not on PATH.
+what the slow test asserts; a case is skipped when a tool it needs is not on
+PATH. The fast test only renders each case, catching template errors in seconds.
+Run `just test-fast` (or `pytest -m "not slow"`) for the quick check alone.
 """
 
 from __future__ import annotations
@@ -62,28 +64,37 @@ def run(project: Path, *command: str) -> None:
         pytest.fail(f"`{' '.join(command)}` failed in {project}:\n{output}")
 
 
-@pytest.mark.parametrize("case", CASES)
-def test_generated_project_passes_its_gate(case: str, tmp_path: Path) -> None:
-    answers, tools, recipes = CASES[case]
-    missing = [tool for tool in ["just", "git", *tools] if shutil.which(tool) is None]
-    if missing:
-        pytest.skip(f"missing tools: {', '.join(missing)}")
-
+def render(case: str, tmp_path: Path) -> Path:
     project = tmp_path / "demo-project"
     run_copy(
         str(ROOT),
         project,
-        data={"project_name": "demo-project", **answers},
+        data={"project_name": "demo-project", **CASES[case][0]},
         defaults=True,
         vcs_ref="HEAD",
         quiet=True,
     )
-
     unrendered = [p for p in project.rglob("*") if "{{" in p.name or p.suffix == ".jinja"]
     assert not unrendered, f"unrendered template files: {unrendered}"
     for expected in ["CLAUDE.md", ".claude/settings.json", ".claude/hooks/gate.sh", "justfile", "LICENSE"]:
         assert (project / expected).is_file(), f"{expected} was not generated"
+    return project
 
+
+@pytest.mark.parametrize("case", CASES)
+def test_template_renders(case: str, tmp_path: Path) -> None:
+    render(case, tmp_path)
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("case", CASES)
+def test_generated_project_passes_its_gate(case: str, tmp_path: Path) -> None:
+    _, tools, recipes = CASES[case]
+    missing = [tool for tool in ["just", "git", *tools] if shutil.which(tool) is None]
+    if missing:
+        pytest.skip(f"missing tools: {', '.join(missing)}")
+
+    project = render(case, tmp_path)
     run(project, "git", "init", "--quiet")
     run(project, "git", "add", "--all")
     run(project, "just", "setup")

@@ -63,6 +63,7 @@ two short hook scripts.
 ## Develop
 
 ```sh
+just test-fast       # only render every template (seconds)
 just test            # generate every template and run its gate (needs the toolchains)
 just test -k rust    # one template
 just validate        # check the plugin manifests

@@ -13,7 +13,8 @@ A Claude Code plugin whose `scaffold` skill generates projects with copier.
 ## Verification
 
 A template change is done when `just test -k <template>` passes: it generates
-a fresh project and runs that project's own gate. Run `just validate` after
+a fresh project and runs that project's own gate. `just test-fast` only renders
+every template (seconds), for quick feedback while editing. Run `just validate` after
 touching `.claude-plugin/` or the skill.
 
 ## Gotchas

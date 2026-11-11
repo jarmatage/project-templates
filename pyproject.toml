@@ -14,3 +14,4 @@ package = false
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["-ra", "--strict-markers"]
+markers = ["slow: generates a project and runs its recipes (builds Rust and C++)"]
