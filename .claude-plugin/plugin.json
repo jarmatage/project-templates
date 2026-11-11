@@ -2,7 +2,7 @@
   "name": "project-templates",
   "version": "0.1.0",
   "description": "Scaffold Python, Python+Rust (maturin/PyO3), Python+C++ (scikit-build-core/nanobind), Rust and C++ projects with a full toolchain and Claude Code settings, using copier.",
-  "author": { "name": "jarmatag" },
+  "author": { "name": "jarmatage" },
   "license": "MIT",
   "keywords": ["copier", "scaffold", "template", "python", "rust", "cpp"]
 }

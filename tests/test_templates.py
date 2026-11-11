@@ -89,3 +89,6 @@ def test_generated_project_passes_its_gate(case: str, tmp_path: Path) -> None:
     run(project, "just", "setup")
     for recipe in recipes:
         run(project, "just", recipe)
+
+    # Build trees reach ~1 GB per project; keep only failed ones for inspection.
+    shutil.rmtree(project)
