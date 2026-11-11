@@ -35,16 +35,29 @@ description:
   type: str
   help: One-line description
   default: "A {{ template }} project."
+  # Rendered inside quoted strings in TOML, CMake and Doxygen files.
+  validator: >-
+    {% if not description or '"' in description or '\\' in description or '\n' in description %}
+    Use one non-empty line without double quotes or backslashes.
+    {% endif %}
 
 author_name:
   type: str
   help: Author name
   default: Your Name
+  validator: >-
+    {% if not author_name or '"' in author_name or '\\' in author_name or '\n' in author_name %}
+    Use one non-empty line without double quotes or backslashes.
+    {% endif %}
 
 author_email:
   type: str
   help: Author email
   default: you@example.com
+  validator: >-
+    {% if '\\' in author_email or not (author_email | regex_search('^[^@ "<>]+@[^@ "<>]+$')) %}
+    Use an address of the form name@example.com.
+    {% endif %}
 
 license:
   type: str

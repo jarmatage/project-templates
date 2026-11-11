@@ -53,7 +53,7 @@ In the destination:
 1. `git init` (skip if it is already inside a repository) and `git add -A`.
 2. `just doctor` - report any missing tool to the user with the printed install
    hint. Do not install system tools without asking.
-3. `just setup`, `just fmt` (rendered names can change line wrapping), then `just check`. Both must succeed; if `check` fails because
+3. `just setup`, `just fmt` (rendered names can change line wrapping), then `just check`. All three must succeed; if `check` fails because
    of the template rather than a missing tool, fix the generated project and
    tell the user what was wrong.
 

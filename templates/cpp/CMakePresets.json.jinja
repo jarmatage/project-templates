@@ -40,11 +40,13 @@
     },
     {
       "name": "release",
-      "displayName": "Optimized build",
+      "displayName": "Optimized build of the library alone",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
+        "{{ package_name | upper }}_BUILD_TESTS": "OFF",
+        "{{ package_name | upper }}_BUILD_EXAMPLES": "OFF",
         "CPM_SOURCE_CACHE": "${sourceDir}/.cache/cpm"
       }
     }

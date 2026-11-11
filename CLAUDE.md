@@ -27,6 +27,9 @@ touching `.claude-plugin/` or the skill.
   (layout, commands, verification, gotchas) and its hooks call `just` recipes.
 - Files that are identical across templates (`.claude/hooks/gate.sh`, the
   answers file, `LICENSE.jinja`) are deliberate copies; change all five together.
+  `just test-fast` fails when they drift (`COPIES` in the tests).
+- Answers land inside quoted strings (TOML, CMake, YAML, docstrings): a new use
+  of `description` or an author field needs the quoting its file format wants.
 - `{{ args }}` in a justfile is just syntax, so justfiles are not `.jinja`
   files. In `.jinja` files, CMake's `${...}` next to `{{ ... }}` needs care.
 - Formatters see rendered names: keep generated code formatted for the default

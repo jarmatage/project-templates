@@ -1,4 +1,4 @@
-"""{{ description }}"""
+"""{{ description }}{% if not description.endswith(('.', '!', '?')) %}.{% endif %}"""
 
 from {{ package_name }}._core import fibonacci
 

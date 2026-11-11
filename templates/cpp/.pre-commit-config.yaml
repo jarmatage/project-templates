@@ -1,5 +1,5 @@
 # Run by prek (or pre-commit) on `git commit`; the hooks reuse the just recipes
-# so commits, CI and Claude all apply exactly the same rules.
+# so commits and Claude apply exactly the same rules.
 repos:
   - repo: local
     hooks:
