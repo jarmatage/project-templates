@@ -4,12 +4,18 @@ A template is only correct if a fresh project passes `just check`, so that is
 what the slow test asserts; a case is skipped when a tool it needs is not on
 PATH. The fast test only renders each case, catching template errors in seconds.
 Run `just test-fast` (or `pytest -m "not slow"`) for the quick check alone.
+
+The slow test shares compiler caches between cases through the environment only,
+so generated projects stay self-contained: ccache (which the C++ templates already
+use when installed) and, if it is on PATH, sccache for Rust.
 """
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
+from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
@@ -66,8 +72,33 @@ CASES: dict[str, tuple[dict[str, str], list[str], list[str]]] = {
 }
 
 
-def run(project: Path, *command: str) -> None:
-    result = subprocess.run(command, cwd=project, capture_output=True, text=True, check=False)
+@pytest.fixture(scope="session")
+def build_env(tmp_path_factory: pytest.TempPathFactory) -> Iterator[dict[str, str]]:
+    env = dict(os.environ)
+    # This repo's own venv must not leak into the generated project's uv or PyO3.
+    env.pop("VIRTUAL_ENV", None)
+    # Every project sits at the same depth under pytest's temp root, so paths
+    # relative to it match across cases and ccache can reuse objects (Catch2 above all).
+    env["CCACHE_BASEDIR"] = str(tmp_path_factory.getbasetemp())
+    env["CCACHE_NOHASHDIR"] = "1"  # the Debug presets use -g, which would hash the cwd
+    if not shutil.which("sccache"):
+        yield env
+        return
+    # A server spawned by cargo inherits run()'s captured pipes and holds them open
+    # until it idles out, hanging the test. So start a dedicated one up front with
+    # no inherited output, and keep it alive for the whole session.
+    env["RUSTC_WRAPPER"] = "sccache"
+    env["SCCACHE_SERVER_PORT"] = "4227"  # not the default 4226, so a user's server is untouched
+    env["SCCACHE_IDLE_TIMEOUT"] = "0"
+    quiet = {"stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL}
+    subprocess.run(["sccache", "--stop-server"], env=env, check=False, **quiet)  # left over from a killed run
+    subprocess.run(["sccache", "--start-server"], env=env, check=True, **quiet)
+    yield env
+    subprocess.run(["sccache", "--stop-server"], env=env, check=False, **quiet)
+
+
+def run(project: Path, *command: str, env: dict[str, str] | None = None) -> None:
+    result = subprocess.run(command, cwd=project, env=env, capture_output=True, text=True, check=False)
     if result.returncode != 0:
         output = (result.stdout + result.stderr)[-4000:]
         pytest.fail(f"`{' '.join(command)}` failed in {project}:\n{output}")
@@ -97,7 +128,7 @@ def test_template_renders(case: str, tmp_path: Path) -> None:
 
 @pytest.mark.slow
 @pytest.mark.parametrize("case", CASES)
-def test_generated_project_passes_its_gate(case: str, tmp_path: Path) -> None:
+def test_generated_project_passes_its_gate(case: str, tmp_path: Path, build_env: dict[str, str]) -> None:
     _, tools, recipes = CASES[case]
     missing = [tool for tool in ["just", "git", *tools] if shutil.which(tool) is None]
     if missing:
@@ -106,9 +137,9 @@ def test_generated_project_passes_its_gate(case: str, tmp_path: Path) -> None:
     project = render(case, tmp_path)
     run(project, "git", "init", "--quiet")
     run(project, "git", "add", "--all")
-    run(project, "just", "setup")
+    run(project, "just", "setup", env=build_env)
     for recipe in recipes:
-        run(project, "just", recipe)
+        run(project, "just", recipe, env=build_env)
 
     # Build trees reach ~1 GB per project; keep only failed ones for inspection.
     shutil.rmtree(project)
