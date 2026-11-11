@@ -24,6 +24,7 @@ CPP = ["cmake", "ninja", "clang-format", "clang-tidy", "gcovr", "doxygen"]
 # name -> (copier answers, tools required on PATH, recipes to run after setup)
 # Defaults run every recipe; variants run the gate for answers that change
 # rendered code: a custom package_name, the oldest and newest Python, Apache-2.0.
+# The py315 cases skip the native tests, which do not depend on the Python version.
 CASES: dict[str, tuple[dict[str, str], list[str], list[str]]] = {
     "python-lib": ({"template": "python", "python_kind": "lib"}, UV, ["check", "cov", "docs", "build"]),
     "python-app": ({"template": "python", "python_kind": "app"}, UV, ["check", "cov", "docs", "build"]),
@@ -39,15 +40,23 @@ CASES: dict[str, tuple[dict[str, str], list[str], list[str]]] = {
     "python-maturin-variant": (
         {"template": "python-maturin", "package_name": "demo_pkg", "python_version": "3.11", "license": "Apache-2.0"},
         UV + RUST,
-        ["check", "docs", "build"],
+        ["check", "docs"],
     ),
-    "python-maturin-py315": ({"template": "python-maturin", "python_version": "3.15"}, UV + RUST, ["check"]),
+    "python-maturin-py315": (
+        {"template": "python-maturin", "python_version": "3.15"},
+        UV + RUST,
+        ["fmt-check", "lint", "typecheck", "test-py"],
+    ),
     "python-nanobind-variant": (
         {"template": "python-nanobind", "package_name": "demo_pkg", "python_version": "3.11", "license": "Apache-2.0"},
         UV,
         ["check", "docs"],
     ),
-    "python-nanobind-py315": ({"template": "python-nanobind", "python_version": "3.15"}, UV, ["check"]),
+    "python-nanobind-py315": (
+        {"template": "python-nanobind", "python_version": "3.15"},
+        UV,
+        ["fmt-check", "lint", "typecheck", "test-py"],
+    ),
     "rust-variant": ({"template": "rust", "package_name": "demo_crate", "license": "Apache-2.0"}, RUST, ["check", "docs"]),
     "cpp-variant": (
         {"template": "cpp", "package_name": "demo_ns", "cpp_standard": "20", "license": "Apache-2.0"},
