@@ -13,10 +13,36 @@ settings that teach Claude how to develop in it.
 | `rust` | cargo, pinned toolchain, rustfmt, clippy (pedantic), nextest, llvm-cov, cargo-deny, rustdoc |
 | `cpp` | pitchfork layout, CMake presets + Ninja, CPM.cmake, Catch2 v3, clang-format, clang-tidy, ASan/UBSan, gcovr, ccache, Doxygen |
 
-All templates share the same verbs through [just](https://just.systems/):
-`setup`, `doctor`, `fmt`, `fmt-check`, `lint`, `test`, `cov`, `docs`, `build`
-and `check` (the gate). Lint is strict (warnings are errors); coverage is
-reported, not enforced. Git hooks run through [prek](https://prek.j178.dev).
+All templates share a core set of verbs through [just](https://just.systems/),
+and add a few where their toolchain needs them. Lint is strict (warnings are
+errors); coverage is reported, not enforced. Git hooks run through
+[prek](https://prek.j178.dev).
+
+## Verbs
+
+| Verb | `python` | `python-maturin` | `python-nanobind` | `rust` | `cpp` |
+| --- | --- | --- | --- | --- | --- |
+| `setup` | `uv sync` | `uv sync` (builds the extension) | `uv sync` (builds the extension), `cmake --preset dev` | `cargo fetch` | `cmake --preset dev` (downloads dependencies) |
+| `fmt` | ruff safe fixes, `ruff format` | `cargo fmt`, ruff safe fixes, `ruff format` | `clang-format -i`, ruff safe fixes, `ruff format` | `cargo fmt` | `clang-format -i` |
+| `fmt-check` | `ruff format --check` | `cargo fmt --check`, `ruff format --check` | `clang-format --dry-run --Werror`, `ruff format --check` | `cargo fmt --check` | `clang-format --dry-run --Werror` |
+| `lint` | `ruff check` | `cargo clippy -D warnings`, `ruff check` | `clang-tidy`, `ruff check` | `cargo clippy -D warnings` | `clang-tidy` |
+| `typecheck` | `ty check` | `ty check` | stub freshness check (`nanobind.stubgen` + `diff`), `ty check` | - | - |
+| `test` | `pytest` | `test-rust`, `test-py` | `test-cpp`, `test-py` | `cargo nextest run`, doctests | `cmake --workflow --preset dev` (build + run Catch2) |
+| `test-py` | - | `pytest` | `pytest` | - | - |
+| `test-rust` | - | `cargo nextest run`, doctests | - | - | - |
+| `test-cpp` | - | - | `cmake --workflow --preset dev` | - | - |
+| `test-san` | - | - | `san` preset (ASan + UBSan) | - | `san` preset (ASan + UBSan) |
+| `cov` | `pytest --cov` | `cargo llvm-cov nextest`, `pytest --cov` | `coverage` preset + `gcovr`, `pytest --cov` | `cargo llvm-cov nextest` | `coverage` preset + `gcovr` |
+| `deny` | - | `cargo deny check` | - | `cargo deny check` | - |
+| `docs` | `mkdocs build --strict` | `cargo doc` (`-D warnings`), `mkdocs build --strict` | `mkdocs build --strict` | `cargo doc` (`-D warnings`) | `doxygen` |
+| `build` | `uv build` (sdist + wheel) | `uv build` (sdist + wheel) | `uv build` (sdist + wheel) | `cargo build --release` | `release` preset |
+| `stubs` | - | - | regenerate `_core.pyi` with `nanobind.stubgen` | - | - |
+| **`check`** | `fmt-check lint typecheck test` | `fmt-check lint typecheck test` | `fmt-check lint typecheck test` | `fmt-check lint test` | `fmt-check lint test` |
+
+Every template also has `doctor`, which reports missing tools and setup steps,
+and `default`, which lists the recipes. `setup` also installs the git hooks.
+`check` is the gate: work is done when it passes. Rust and C++ have no
+`typecheck` because the compiler does it during `lint` and `test`.
 
 ## Use
 
