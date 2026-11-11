@@ -22,3 +22,6 @@ site/
 /target
 *.so
 *.pyd
+
+# Editor workspaces
+*.code-workspace

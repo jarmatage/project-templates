@@ -54,8 +54,9 @@ test-cpp:
     uv run cmake --workflow --preset dev
 
 # Run the Python tests against a freshly built extension; extra arguments go to pytest
+[positional-arguments]
 test-py *args:
-    uv run pytest {{ args }}
+    uv run pytest "$@"
 
 # Run all tests
 test: test-cpp test-py
@@ -67,7 +68,7 @@ test-san:
 # Coverage: C++ core via gcovr, Python package via pytest-cov
 cov:
     uv run cmake --workflow --preset coverage
-    uv run gcovr --root . --filter cpp/include --filter cpp/src build/coverage
+    uv run gcovr --root . --filter cpp/include --filter cpp/src --exclude-directories build/coverage/_deps build/coverage
     uv run pytest --cov --cov-report=term-missing
 
 # Build the MkDocs site into site/

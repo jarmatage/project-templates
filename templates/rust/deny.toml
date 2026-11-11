@@ -7,6 +7,8 @@ version = 2
 
 [licenses]
 version = 2
+# The allowlist covers common permissive licenses, not only ones in use today.
+unused-allowed-license = "allow"
 allow = [
     "Apache-2.0",
     "Apache-2.0 WITH LLVM-exception",
@@ -21,6 +23,8 @@ allow = [
 [bans]
 multiple-versions = "warn"
 wildcards = "deny"
+# Path dependencies between unpublished workspace crates carry no version.
+allow-wildcard-paths = true
 
 [sources]
 unknown-registry = "deny"

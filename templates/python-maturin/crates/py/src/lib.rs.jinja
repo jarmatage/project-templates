@@ -26,7 +26,7 @@ mod _core {
     ///     OverflowError: If ``n`` is negative or the result does not fit in 64 bits.
     #[pyfunction]
     fn fibonacci(n: u32) -> PyResult<u64> {
-        {{ package_name }}_core::fibonacci(n)
+        {{ project_name | replace('-', '_') }}_core::fibonacci(n)
             .ok_or_else(|| PyOverflowError::new_err("result does not fit in 64 bits"))
     }
 }

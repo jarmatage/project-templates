@@ -31,8 +31,9 @@ typecheck:
     uv run ty check
 
 # Run tests; extra arguments go to pytest (just test -k name)
+[positional-arguments]
 test *args:
-    uv run pytest {{ args }}
+    uv run pytest "$@"
 
 # Run tests with a coverage report
 cov:

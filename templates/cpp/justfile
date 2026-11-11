@@ -49,10 +49,11 @@ test-san:
 # Run the tests with a coverage report
 cov:
     cmake --workflow --preset coverage
-    gcovr --root . --filter include --filter src build/coverage
+    gcovr --root . --filter include --filter src --exclude-directories build/coverage/_deps build/coverage
 
 # Build the API documentation into build/docs
 docs:
+    mkdir -p build/docs
     doxygen docs/Doxyfile
 
 # Build in release mode into build/release

@@ -16,21 +16,41 @@ from copier import run_copy
 ROOT = Path(__file__).parent.parent
 
 UV = ["uv"]
-RUST = ["cargo", "cargo-nextest"]
-CPP = ["cmake", "ninja", "clang-format", "clang-tidy"]
+RUST = ["cargo", "cargo-nextest", "cargo-llvm-cov", "cargo-deny"]
+CPP = ["cmake", "ninja", "clang-format", "clang-tidy", "gcovr", "doxygen"]
 
 # name -> (copier answers, tools required on PATH, recipes to run after setup)
+# Defaults run every recipe; variants run the gate for answers that change
+# rendered code: a custom package_name, the oldest and newest Python, Apache-2.0.
 CASES: dict[str, tuple[dict[str, str], list[str], list[str]]] = {
     "python-lib": ({"template": "python", "python_kind": "lib"}, UV, ["check", "cov", "docs", "build"]),
     "python-app": ({"template": "python", "python_kind": "app"}, UV, ["check", "cov", "docs", "build"]),
-    "python-maturin": ({"template": "python-maturin"}, UV + RUST, ["check", "docs", "build"]),
+    "python-maturin": ({"template": "python-maturin"}, UV + RUST, ["check", "cov", "deny", "docs", "build"]),
     "python-nanobind": ({"template": "python-nanobind"}, UV, ["check", "test-san", "cov", "docs", "build"]),
-    "rust": ({"template": "rust"}, RUST, ["check", "docs", "build"]),
-    "cpp": ({"template": "cpp"}, CPP, ["check", "test-san", "build"]),
-    "cpp-20-apache": (
-        {"template": "cpp", "cpp_standard": "20", "license": "Apache-2.0"},
+    "rust": ({"template": "rust"}, RUST, ["check", "cov", "deny", "docs", "build"]),
+    "cpp": ({"template": "cpp"}, CPP, ["check", "test-san", "cov", "docs", "build"]),
+    "python-lib-variant": (
+        {"template": "python", "package_name": "demo_pkg", "python_version": "3.14", "license": "Apache-2.0"},
+        UV,
+        ["check", "docs"],
+    ),
+    "python-maturin-variant": (
+        {"template": "python-maturin", "package_name": "demo_pkg", "python_version": "3.11", "license": "Apache-2.0"},
+        UV + RUST,
+        ["check", "docs", "build"],
+    ),
+    "python-maturin-py314": ({"template": "python-maturin", "python_version": "3.14"}, UV + RUST, ["check"]),
+    "python-nanobind-variant": (
+        {"template": "python-nanobind", "package_name": "demo_pkg", "python_version": "3.11", "license": "Apache-2.0"},
+        UV,
+        ["check", "docs"],
+    ),
+    "python-nanobind-py314": ({"template": "python-nanobind", "python_version": "3.14"}, UV, ["check"]),
+    "rust-variant": ({"template": "rust", "package_name": "demo_crate", "license": "Apache-2.0"}, RUST, ["check", "docs"]),
+    "cpp-variant": (
+        {"template": "cpp", "package_name": "demo_ns", "cpp_standard": "20", "license": "Apache-2.0"},
         CPP,
-        ["check"],
+        ["check", "docs"],
     ),
 }
 

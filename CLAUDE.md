@@ -19,6 +19,8 @@ touching `.claude-plugin/` or the skill.
 ## Gotchas
 
 - Never run a template's recipes inside `templates/`; generate a project first (`just try <template> <dir>`).
+- `just test` generates projects under `.pytest-tmp/`, not `/tmp`: a full run's
+  Rust and C++ build trees are several GB, enough to fill a RAM-backed `/tmp`.
 - Each generated project must stay self-contained: its `CLAUDE.md` is short
   (layout, commands, verification, gotchas) and its hooks call `just` recipes.
 - Files that are identical across templates (`.claude/hooks/gate.sh`, the

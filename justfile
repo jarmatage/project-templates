@@ -4,9 +4,12 @@ default:
     @just --list
 
 # Generate every template and run its own `just check` (slow: builds Rust and C++).
-# Extra arguments go to pytest, e.g. `just test -k rust`.
+# Extra arguments go to pytest, e.g. `just test -k rust`. Projects are generated
+# under .pytest-tmp/ (cleared on each run): their build trees are several GB,
+# too much for a RAM-backed /tmp.
+[positional-arguments]
 test *args:
-    uv run pytest {{ args }}
+    uv run pytest --basetemp="{{ justfile_directory() }}/.pytest-tmp" "$@"
 
 # Validate the plugin and marketplace manifests
 validate:

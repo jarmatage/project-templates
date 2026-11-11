@@ -1,5 +1,9 @@
 .venv/
 __pycache__/
 .pytest_cache/
+.pytest-tmp/
 .ruff_cache/
 .claude/settings.local.json
+
+# Editor workspaces
+*.code-workspace

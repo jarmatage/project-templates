@@ -39,13 +39,15 @@ typecheck:
     uv run ty check
 
 # Run the Rust tests; extra arguments go to nextest
+[positional-arguments]
 test-rust *args:
-    cargo nextest run --workspace {{ args }}
+    cargo nextest run --workspace "$@"
     cargo test --doc --workspace
 
 # Run the Python tests against a freshly built extension; extra arguments go to pytest
+[positional-arguments]
 test-py *args:
-    uv run pytest {{ args }}
+    uv run pytest "$@"
 
 # Run all tests
 test: test-rust test-py

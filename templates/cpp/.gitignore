@@ -5,3 +5,6 @@ build/
 # Claude Code local state
 .claude/settings.local.json
 .claude/.gate-*
+
+# Editor workspaces
+*.code-workspace

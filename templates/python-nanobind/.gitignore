@@ -22,3 +22,6 @@ site/
 .cache/
 *.so
 *.pyd
+
+# Editor workspaces
+*.code-workspace

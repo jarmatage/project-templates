@@ -30,8 +30,9 @@ lint:
     cargo clippy --all-targets --all-features -- -D warnings
 
 # Run tests; extra arguments go to nextest (just test name_filter)
+[positional-arguments]
 test *args:
-    cargo nextest run --all-features {{ args }}
+    cargo nextest run --all-features "$@"
     cargo test --doc --all-features
 
 # Run tests with a coverage report
