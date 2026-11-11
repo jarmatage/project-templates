@@ -42,4 +42,6 @@ Never call `pip`, `maturin develop` or a bare `python`; use `uv run`.
   the type stub `src/{{ package_name }}/_core.pyi`, and the re-export in `__init__.py`.
 - The version lives only in `[workspace.package]` in the root `Cargo.toml`.
 - `crates/py` has no Rust tests by design (a test binary would need libpython).
+- `.cargo/config.toml` points PyO3 at `.venv/bin/python`, so cargo commands
+  need `just setup` first.
 - `uv.lock`, `Cargo.lock` and `.copier-answers.yml` are generated; edits to them are blocked.

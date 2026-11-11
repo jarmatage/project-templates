@@ -30,7 +30,7 @@ CASES: dict[str, tuple[dict[str, str], list[str], list[str]]] = {
     "rust": ({"template": "rust"}, RUST, ["check", "cov", "deny", "docs", "build"]),
     "cpp": ({"template": "cpp"}, CPP, ["check", "test-san", "cov", "docs", "build"]),
     "python-lib-variant": (
-        {"template": "python", "package_name": "demo_pkg", "python_version": "3.14", "license": "Apache-2.0"},
+        {"template": "python", "package_name": "demo_pkg", "python_version": "3.15", "license": "Apache-2.0"},
         UV,
         ["check", "docs"],
     ),
@@ -39,13 +39,13 @@ CASES: dict[str, tuple[dict[str, str], list[str], list[str]]] = {
         UV + RUST,
         ["check", "docs", "build"],
     ),
-    "python-maturin-py314": ({"template": "python-maturin", "python_version": "3.14"}, UV + RUST, ["check"]),
+    "python-maturin-py315": ({"template": "python-maturin", "python_version": "3.15"}, UV + RUST, ["check"]),
     "python-nanobind-variant": (
         {"template": "python-nanobind", "package_name": "demo_pkg", "python_version": "3.11", "license": "Apache-2.0"},
         UV,
         ["check", "docs"],
     ),
-    "python-nanobind-py314": ({"template": "python-nanobind", "python_version": "3.14"}, UV, ["check"]),
+    "python-nanobind-py315": ({"template": "python-nanobind", "python_version": "3.15"}, UV, ["check"]),
     "rust-variant": ({"template": "rust", "package_name": "demo_crate", "license": "Apache-2.0"}, RUST, ["check", "docs"]),
     "cpp-variant": (
         {"template": "cpp", "package_name": "demo_ns", "cpp_standard": "20", "license": "Apache-2.0"},

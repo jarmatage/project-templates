@@ -28,7 +28,7 @@ the chosen template.
 | `author_name`, `author_email` | all | `git config user.name` / `user.email` |
 | `license` | all | `MIT` (or `Apache-2.0`) |
 | `python_kind` | `python` | `lib` (or `app`) |
-| `python_version` | `python*` | `3.12` |
+| `python_version` | `python*` | `3.14` |
 | `rust_channel` | `rust`, `python-maturin` | the installed stable version from `rustc --version`, else `stable` |
 | `cpp_standard` | `cpp`, `python-nanobind` | `23` |
 

@@ -66,8 +66,8 @@ python_kind:
 python_version:
   type: str
   help: Minimum supported Python version
-  choices: ["3.11", "3.12", "3.13", "3.14"]
-  default: "3.12"
+  choices: ["3.11", "3.12", "3.13", "3.14", "3.15"]
+  default: "3.14"
   when: "{{ template.startswith('python') }}"
 
 rust_channel:

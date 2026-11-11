@@ -1,9 +1,14 @@
 """Command line interface."""
 
+from __future__ import annotations
+
 import argparse
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 from {{ package_name }}.core import fibonacci
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 def main(argv: Sequence[str] | None = None) -> int:

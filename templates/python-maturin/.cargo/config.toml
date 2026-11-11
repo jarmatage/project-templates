@@ -1,0 +1,5 @@
+# Build PyO3 against the project's interpreter (from `.python-version`), not
+# whichever `python3` is first on PATH: the abi3 floor rejects older ones.
+# Not forced, so maturin's own PYO3_PYTHON still wins during `uv sync`.
+[env]
+PYO3_PYTHON = { value = ".venv/bin/python", relative = true }
