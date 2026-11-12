@@ -23,7 +23,7 @@ errors); coverage is reported, not enforced. Git hooks run through
 Install the plugin, then ask Claude to scaffold a project:
 
 ```claude
-/plugin marketplace add <path-or-git-url-of-this-repository>
+/plugin marketplace add jarmatage/project-templates
 /plugin install project-templates@project-templates
 /project-templates:scaffold rust ~/code/my-crate
 ```
@@ -35,7 +35,7 @@ if you asked for one.
 Without Claude:
 
 ```sh
-uvx copier copy <path-or-git-url-of-this-repository> my-project
+uvx copier copy gh:jarmatage/project-templates my-project
 ```
 
 Projects generated from a git URL can pull later template changes with
