@@ -1,6 +1,6 @@
 [project]
 name = "project-templates"
-version = "0.1.0"
+version = "0.2.0"
 description = "Copier project templates with full toolchains and Claude Code settings"
 requires-python = ">=3.12"
 dependencies = []
