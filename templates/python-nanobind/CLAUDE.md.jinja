@@ -8,28 +8,24 @@ A Python package whose implementation is a C++{{ cpp_standard }} extension (nano
 
 - `cpp/include/{{ package_name }}/`, `cpp/src/` - pure C++ core library, no Python dependency
 - `cpp/bindings/module.cpp` - thin nanobind bindings, compiled to `{{ package_name }}._core`
-- `cpp/tests/*.test.cpp` - Catch2 tests for the core (picked up automatically)
+- `cpp/tests/*.test.cpp` - Catch2 tests for the core
 - `src/{{ package_name }}/` - the Python package: re-exports, `py.typed`, and `_core.pyi`, a stub generated from the extension by `just stubs`
 - `tests/` - pytest suite that exercises the built extension
 - `CMakeLists.txt`, `CMakePresets.json` - one build, used by scikit-build-core (wheel) and by the `dev` / `san` / `coverage` presets
 
 ## Commands
 
-Everything goes through `just` (run `just` to list recipes) and `uv`. cmake,
-ninja, clang-format, clang-tidy and gcovr are dev dependencies: run them as
-`uv run <tool>`. Never call `pip` or a bare `python`.
+Use `just` (bare `just` lists the recipes) and `uv run`; never `pip` or a bare `python`.
 
 - `just check` - format check, clang-tidy + ruff, ty, C++ and Python tests. **Work is not done until this passes.**
 - `just test-cpp` / `just test-py -k name` - run one side while iterating
 - `just test-san` - C++ tests under ASan + UBSan; run it after touching memory, lifetimes or arithmetic
-- `just cov` - coverage for both sides; `just docs` - strict docs build
 
 ## Verification
 
 - Logic changes need a Catch2 test in `cpp/tests`; anything visible from
   Python also needs a pytest test. Tests must fail before the change and pass after.
-- Hooks do the routine work: every edit is formatted (clang-format, ruff), and
-  `just check` runs when you finish. If it fails you get the output; fix the cause.
+- Hooks format every edit and run `just check` when you finish.
 - Compiler warnings, clang-tidy findings and every ruff rule are errors. Do not
   add `NOLINT`, `# noqa` or `# type: ignore` to get green; configure the check
   in `.clang-tidy` / `pyproject.toml` with a reason.
@@ -41,8 +37,5 @@ ninja, clang-format, clang-tidy and gcovr are dev dependencies: run them as
   change (`cache-keys` in `pyproject.toml`), so Python tests always see current C++ code.
 - A new `.cpp` file must be added to its target in `CMakeLists.txt` (tests are globbed).
 - To expose a function to Python: bind it in `cpp/bindings/module.cpp` (which
-  also holds its Python docstring), run `just stubs` to regenerate
-  `_core.pyi` (never edit the stub; `just check` fails if it is stale), and
-  re-export it in `__init__.py`.
-- clangd and clang-tidy read `build/dev/compile_commands.json`; `just setup` creates it.
-- `uv.lock` and `.copier-answers.yml` are generated; edits to them are blocked.
+  also holds its Python docstring), run `just stubs` to regenerate `_core.pyi`,
+  and re-export it in `__init__.py`.

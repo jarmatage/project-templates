@@ -33,7 +33,8 @@ TEMPLATES = sorted(p.name for p in (ROOT / "templates").iterdir())
 CXX = ["c++|g++|clang++"]
 UV = ["uv"]
 RUST = ["cargo", "cargo-nextest", "cargo-llvm-cov", "cargo-deny"]
-CPP = [*CXX, "cmake", "ninja", "clang-format", "clang-tidy", "gcovr", "doxygen"]
+NATIVE = [*CXX, "cmake", "ninja", "clang-format", "clang-tidy"]
+CPP = [*NATIVE, "gcovr", "doxygen"]
 
 # No trailing period, and a colon that YAML would read as a mapping.
 AWKWARD_DESCRIPTION = "Parsing tools: fast & small, it's <all> here"
@@ -47,7 +48,7 @@ CASES: dict[str, tuple[dict[str, str], list[str], list[str]]] = {
     "python-lib": ({"template": "python", "python_kind": "lib"}, UV, ["check", "cov", "docs", "build"]),
     "python-app": ({"template": "python", "python_kind": "app"}, UV, ["check", "cov", "docs", "build"]),
     "python-maturin": ({"template": "python-maturin"}, UV + RUST, ["check", "cov", "deny", "docs", "build"]),
-    "python-nanobind": ({"template": "python-nanobind"}, UV + CXX, ["check", "test-san", "cov", "docs", "build"]),
+    "python-nanobind": ({"template": "python-nanobind"}, UV + NATIVE, ["check", "test-san", "cov", "docs", "build"]),
     "rust": ({"template": "rust"}, RUST, ["check", "cov", "deny", "docs", "build"]),
     "cpp": ({"template": "cpp"}, CPP, ["check", "test-san", "cov", "docs", "build"]),
     "python-lib-variant": (
@@ -72,12 +73,12 @@ CASES: dict[str, tuple[dict[str, str], list[str], list[str]]] = {
     ),
     "python-nanobind-variant": (
         {"template": "python-nanobind", "package_name": "demo_pkg", "python_version": "3.11", "license": "Apache-2.0"},
-        UV + CXX,
+        UV + NATIVE,
         ["check", "docs"],
     ),
     "python-nanobind-py315": (
         {"template": "python-nanobind", "python_version": "3.15"},
-        UV + CXX,
+        UV + NATIVE,
         ["fmt-check", "lint", "typecheck", "test-py"],
     ),
     "rust-variant": ({"template": "rust", "package_name": "demo_crate", "license": "Apache-2.0"}, RUST, ["check", "docs"]),
@@ -107,11 +108,15 @@ def build_env(tmp_path_factory: pytest.TempPathFactory) -> Iterator[dict[str, st
     env["RUSTC_WRAPPER"] = "sccache"
     env["SCCACHE_SERVER_PORT"] = "4227"  # not the default 4226, so a user's server is untouched
     env["SCCACHE_IDLE_TIMEOUT"] = "0"
-    quiet = {"stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL}
-    subprocess.run(["sccache", "--stop-server"], env=env, check=False, **quiet)  # left over from a killed run
-    subprocess.run(["sccache", "--start-server"], env=env, check=True, **quiet)
+    null = subprocess.DEVNULL
+
+    def sccache(action: str, *, check: bool) -> None:
+        subprocess.run(["sccache", action], env=env, check=check, stdin=null, stdout=null, stderr=null)
+
+    sccache("--stop-server", check=False)  # left over from a killed run
+    sccache("--start-server", check=True)
     yield env
-    subprocess.run(["sccache", "--stop-server"], env=env, check=False, **quiet)
+    sccache("--stop-server", check=False)
 
 
 def run(project: Path, *command: str, env: dict[str, str] | None = None) -> None:

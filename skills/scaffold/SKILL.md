@@ -32,6 +32,9 @@ the chosen template.
 | `rust_channel` | `rust`, `python-maturin` | the installed stable version from `rustc --version`, else `stable` |
 | `cpp_standard` | `cpp`, `python-nanobind` | `23` |
 
+In the same batch, ask whether to finish with an initial commit (default: no).
+Do not ask when the destination is inside an existing repository.
+
 ## 2. Generate
 
 Pass every answer with `--data` so copier never prompts:
@@ -56,13 +59,15 @@ In the destination:
 3. `just setup`, `just fmt` (rendered names can change line wrapping), then `just check`. All three must succeed; if `check` fails because
    of the template rather than a missing tool, fix the generated project and
    tell the user what was wrong.
-
-Do not commit unless asked.
+4. If the user chose an initial commit, step 1 created the repository and
+   `check` passed: `git add -A` again (setup wrote lockfiles) and
+   `git commit -m "Initial commit"`. Otherwise leave the files staged and
+   do not commit.
 
 ## 4. Report
 
 Tell the user where the project is, which tools were missing (if any), the
-`just check` result, and that the project ships its own `CLAUDE.md` and
-`.claude/settings.json` (hooks, permissions, language-server plugin) which
-take effect when Claude Code is started in that directory and the folder is
-trusted.
+`just check` result, whether it was committed, and that the project ships its
+own `CLAUDE.md` and `.claude/settings.json` (hooks, permissions,
+language-server plugin) which take effect when Claude Code is started in that
+directory and the folder is trusted.

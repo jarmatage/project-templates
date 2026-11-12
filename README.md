@@ -18,6 +18,29 @@ and add a few where their toolchain needs them. Lint is strict (warnings are
 errors); coverage is reported, not enforced. Git hooks run through
 [prek](https://prek.j178.dev).
 
+## Use
+
+Install the plugin, then ask Claude to scaffold a project:
+
+```claude
+/plugin marketplace add <path-or-git-url-of-this-repository>
+/plugin install project-templates@project-templates
+/project-templates:scaffold rust ~/code/my-crate
+```
+
+The skill collects the answers, runs copier, then runs the new project's
+`just setup` and `just check` to prove it works, and makes the initial commit
+if you asked for one.
+
+Without Claude:
+
+```sh
+uvx copier copy <path-or-git-url-of-this-repository> my-project
+```
+
+Projects generated from a git URL can pull later template changes with
+`uvx copier update`.
+
 ## Verbs
 
 | Verb | `python` | `python-maturin` | `python-nanobind` | `rust` | `cpp` |
@@ -35,6 +58,7 @@ errors); coverage is reported, not enforced. Git hooks run through
 | `cov` | `pytest --cov` | `cargo llvm-cov nextest`, `pytest --cov` | `coverage` preset + `gcovr`, `pytest --cov` | `cargo llvm-cov nextest` | `coverage` preset + `gcovr` |
 | `deny` | - | `cargo deny check` | - | `cargo deny check` | - |
 | `docs` | `mkdocs build --strict` | `cargo doc` (`-D warnings`), `mkdocs build --strict` | `mkdocs build --strict` | `cargo doc` (`-D warnings`) | `doxygen` |
+| `docs-serve` | `mkdocs serve` (live reload) | `mkdocs serve` (live reload) | `mkdocs serve` (live reload) | - | - |
 | `build` | `uv build` (sdist + wheel) | `uv build` (sdist + wheel) | `uv build` (sdist + wheel) | `cargo build --release` | `release` preset |
 | `stubs` | - | - | regenerate `_core.pyi` with `nanobind.stubgen` | - | - |
 | **`check`** | `fmt-check lint typecheck test` | `fmt-check lint typecheck test` | `fmt-check lint typecheck test` | `fmt-check lint test` | `fmt-check lint test` |
@@ -43,28 +67,6 @@ Every template also has `doctor`, which reports missing tools and setup steps,
 and `default`, which lists the recipes. `setup` also installs the git hooks.
 `check` is the gate: work is done when it passes. Rust and C++ have no
 `typecheck` because the compiler does it during `lint` and `test`.
-
-## Use
-
-Install the plugin, then ask Claude to scaffold a project:
-
-```
-/plugin marketplace add <path-or-git-url-of-this-repository>
-/plugin install project-templates@project-templates
-/project-templates:scaffold rust ~/code/my-crate
-```
-
-The skill collects the answers, runs copier, then runs the new project's
-`just setup` and `just check` to prove it works.
-
-Without Claude:
-
-```sh
-uvx copier copy <path-or-git-url-of-this-repository> my-project
-```
-
-Projects generated from a git URL can pull later template changes with
-`uvx copier update`.
 
 ## Claude Code settings in generated projects
 
@@ -85,6 +87,26 @@ two short hook scripts.
   official marketplace.
 - **Permissions** - `just` and the template's own toolchain commands are
   pre-allowed; build output directories are excluded from reads.
+
+## Token cost
+
+What a generated project costs in Claude's context, measured on a fresh render
+with the default answers (tokens as reported by Claude Code's `/context` for
+Claude Opus 5.5):
+
+| Template | `CLAUDE.md` (every session) | Whole project (read once) |
+| --- | --- | --- |
+| `python` | 388 | 5,400 |
+| `python-maturin` | 887 | 9,000 |
+| `python-nanobind` | 865 | 11,700 |
+| `rust` | 440 | 5,200 |
+| `cpp` | 635 | 9,300 |
+
+Only `CLAUDE.md` is loaded into every session; everything else is read on
+demand. The whole-project figure counts every generated file before
+`just setup` (so no lockfiles or build output) and leaves out the vendored
+`cmake/CPM.cmake` in the two C++ templates (about 25,000 tokens, and never
+worth reading).
 
 ## Develop
 

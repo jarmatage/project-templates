@@ -66,6 +66,10 @@ docs:
     RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
     uv run --group docs mkdocs build --strict
 
+# Serve the MkDocs site with live reload; restart it to pick up Rust changes: just docs-serve [port]
+docs-serve port="8000":
+    uv run --group docs mkdocs serve --dev-addr localhost:{{ port }}
+
 # Build the sdist and wheel into dist/
 build:
     uv build

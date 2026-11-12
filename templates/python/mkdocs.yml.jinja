@@ -8,6 +8,9 @@ plugins:
       handlers:
         python:
           paths: [src]
+# `just docs-serve` also reloads when docstrings change.
+watch:
+  - src
 nav:
   - Home: index.md
   - API reference: api.md

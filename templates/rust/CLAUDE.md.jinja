@@ -6,31 +6,26 @@
 
 - `src/lib.rs` - the library crate; unit tests live next to the code in `mod tests`
 - `tests/` - integration tests that use only the public API
-- `rust-toolchain.toml` - pinned toolchain; `deny.toml` - dependency policy
 
 ## Commands
 
-Everything goes through `just` (run `just` to list recipes).
+Use `just` (bare `just` lists the recipes).
 
 - `just check` - format check, clippy, tests and doctests. **Work is not done until this passes.**
 - `just test name_filter` - run a subset while iterating (nextest filter)
-- `just cov` - coverage; `just docs` - rustdoc with warnings as errors
 - `cargo add <crate>` - change dependencies, then run `just deny`
 
 ## Verification
 
 - A behaviour change needs a test that fails before the change and passes
   after: a unit test beside the code, or an integration test in `tests/`.
-- Hooks do the routine work: every edit is formatted with rustfmt, and
-  `just check` runs when you finish. If it fails you get the output; fix the cause.
+- Hooks format every edit and run `just check` when you finish.
 - Clippy runs with `pedantic` and `-D warnings`. Do not add `#[allow(...)]` to
   get green; if a lint is wrong for this project, configure it under `[lints]`
   in `Cargo.toml` with a reason.
-- Prefer rust-analyzer (go to definition, find references, diagnostics) over
-  text search for navigating Rust.
+- Prefer rust-analyzer over text search for navigating Rust.
 
 ## Gotchas
 
 - `unsafe` is forbidden and public items must be documented (`[lints]` in `Cargo.toml`).
 - nextest does not run doctests; `just test` runs them separately with `cargo test --doc`.
-- `Cargo.lock` and `.copier-answers.yml` are generated; edits to them are blocked.

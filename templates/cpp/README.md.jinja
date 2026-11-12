@@ -31,6 +31,11 @@ just         # list every recipe
 | Docs | Doxygen |
 | Git hooks | prek |
 
+Dependencies are downloaded and built from source by CPM.cmake. To let a
+package manager (Conan, vcpkg, system packages) supply them instead, configure
+with `-DCPM_USE_LOCAL_PACKAGES=ON`: every `CPMAddPackage` then tries
+`find_package()` first.
+
 The layout follows [pitchfork](https://github.com/vector-of-bool/pitchfork):
 public headers in `include/`, sources in `src/`, plus `tests/`, `examples/`
 and `docs/`.

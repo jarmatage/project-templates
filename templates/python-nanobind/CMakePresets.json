@@ -10,6 +10,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "DEV_BUILD": "ON",
+        "Python_EXECUTABLE": "${sourceDir}/.venv/bin/python",
         "CPM_SOURCE_CACHE": "${sourceDir}/.cache/cpm"
       }
     },

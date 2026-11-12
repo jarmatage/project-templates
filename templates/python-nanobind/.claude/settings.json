@@ -2,6 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(just *)",
+      "Bash(cmake *)",
+      "Bash(ctest *)",
+      "Bash(clang-format *)",
+      "Bash(clang-tidy *)",
       "Bash(uv run *)",
       "Bash(uv sync *)",
       "Bash(uv lock *)",

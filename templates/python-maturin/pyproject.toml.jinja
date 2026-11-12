@@ -60,6 +60,16 @@ convention = "google"
     "S101",    # assert is how pytest works
 ]
 
+[tool.ty.rules]
+# Strict rules that ty leaves off by default.
+blanket-ignore-comment = "error"            # a suppression names its rule
+disjoint-cast = "error"                     # no cast between unrelated types
+dynamic-function-decorator-return = "error" # decorators keep the function's type
+missing-type-argument = "error"             # no bare `list` or `dict`
+unsound-assignment = "error"                # `Any` does not pass for a declared type
+unsound-return-statement = "error"
+unsound-yield = "error"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["-ra", "--strict-markers", "--strict-config"]

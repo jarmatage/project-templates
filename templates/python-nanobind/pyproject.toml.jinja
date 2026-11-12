@@ -10,15 +10,11 @@ requires-python = ">={{ python_version }}"
 dependencies = []
 
 [dependency-groups]
-# The C++ tools come from PyPI too, so `uv sync` provides the whole toolchain
-# except the compiler and clangd.
+# Python tools only: the compiler, cmake, ninja, clang-format and clang-tidy come
+# from the system (`just doctor` reports what is missing).
 dev = [
-    "clang-format>=21",
-    "clang-tidy>=21",
-    "cmake>=3.26",
     "gcovr>=8",
     "nanobind>=2.9",
-    "ninja>=1.11",
     "prek>=0.5",
     "pytest>=9",
     "pytest-cov>=7",
@@ -68,6 +64,16 @@ convention = "google"
     "PLR2004", # literal values are fine in assertions
     "S101",    # assert is how pytest works
 ]
+
+[tool.ty.rules]
+# Strict rules that ty leaves off by default.
+blanket-ignore-comment = "error"            # a suppression names its rule
+disjoint-cast = "error"                     # no cast between unrelated types
+dynamic-function-decorator-return = "error" # decorators keep the function's type
+missing-type-argument = "error"             # no bare `list` or `dict`
+unsound-assignment = "error"                # `Any` does not pass for a declared type
+unsound-return-statement = "error"
+unsound-yield = "error"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -8,10 +8,10 @@ A Python package implemented in C++{{ cpp_standard }} with
 
 ## Development
 
-Requires [uv](https://docs.astral.sh/uv/), [just](https://just.systems/) and a
-C++{{ cpp_standard }} compiler. CMake, Ninja, clang-format, clang-tidy and gcovr are
-installed into the project environment by `uv sync`; clangd (for editors and
-Claude) and ccache are optional system packages. `just doctor` reports what is missing.
+Requires [uv](https://docs.astral.sh/uv/), [just](https://just.systems/), a
+C++{{ cpp_standard }} compiler (GCC or Clang), CMake 3.26+, Ninja, clang-format and
+clang-tidy; clangd (for editors and Claude) and ccache are used when present.
+The Python tools are installed by `uv sync`. `just doctor` reports what is missing.
 
 ```sh
 just setup   # create the environment (builds the extension), configure the dev build, install git hooks
